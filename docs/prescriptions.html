@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Refill, transfer or upload a prescription with Medixly, and track every request in one place.">
+<meta name="theme-color" content="#F3F2EF">
+<title>Prescriptions · Medixly</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="assets/css/medixly.css">
+</head>
+<body>
+
+<div class="app">
+  <nav class="nav" data-nav="prescriptions" aria-label="Main"></nav>
+
+  <main class="app__main">
+    <div class="shell">
+
+      <header class="page-head">
+        <span class="overline">Prescriptions</span>
+        <h1 class="display-2 mt-1">Refills and transfers</h1>
+        <p class="lede mt-2">Start a request in about two minutes. A pharmacist reviews every one the same day.</p>
+      </header>
+
+      <div class="split">
+        <div>
+
+          <section class="section">
+            <div class="section-head"><h2 class="section-head__title">Start a request <span class="section-head__count">3</span></h2></div>
+            <div class="stack stack--shingle" id="stack-start"></div>
+          </section>
+
+          <section class="section">
+            <div class="section-head"><h2 class="section-head__title">Active prescriptions <span class="section-head__count">3</span></h2></div>
+            <div class="panel panel--flush mt-2">
+              <div class="row-list">
+                <div class="row-list__item"><span class="row-list__label">Metformin 500 mg</span><span class="row-list__value">2 refills · ready</span></div>
+                <div class="row-list__item"><span class="row-list__label">Ramipril 5 mg</span><span class="row-list__value">1 refill · due 24 Aug</span></div>
+                <div class="row-list__item"><span class="row-list__label">Atorvastatin 20 mg</span><span class="row-list__value">No refills left</span></div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <aside class="section">
+          <div class="panel stack-y">
+            <div>
+              <span class="overline">Quick refill</span>
+              <h2 class="title-2 mt-1">Refill by prescription number</h2>
+            </div>
+            <label class="field">
+              <span class="field__label">Prescription number <span class="req" aria-hidden="true">*</span></span>
+              <input class="field__control" inputmode="numeric" placeholder="e.g. 4821663" required>
+            </label>
+            <label class="field">
+              <span class="field__label">Pickup or delivery</span>
+              <select class="field__control">
+                <option>Pickup at Old Park Pharmacy</option>
+                <option>Delivery to my address</option>
+              </select>
+            </label>
+            <label class="checkbox">
+              <input type="checkbox" id="rx-consent">
+              <span>I consent to Medixly using my personal health information to process this request.</span>
+            </label>
+            <button class="btn btn--full" id="rx-submit" type="button" disabled>Submit request</button>
+            <div class="trust"><span data-icon="lock" data-icon-size="14"></span><span>Sent securely via Hushmail for Healthcare</span></div>
+          </div>
+        </aside>
+      </div>
+
+      <div style="height:clamp(48px,8vw,80px)"></div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+import { renderCards } from './assets/js/medixly.js';
+
+renderCards(document.getElementById('stack-start'), [
+  { tone: 'clay', icon: 'refresh', title: 'Refill a prescription', meta: 'Online or by phone',
+    detail: { kicker: 'Prescription service', title: 'Refill a prescription', meta: 'Running low? Refill your existing medications online or by phone.',
+      rows: [['Typical turnaround', 'Same day'], ['Time to complete', 'About 2 minutes'], ['Pickup', 'Old Park Pharmacy']], actionLabel: 'Start a refill', href: '#' } },
+  { tone: 'sage', icon: 'repeat', title: 'Transfer a prescription', meta: 'From another pharmacy',
+    detail: { kicker: 'Prescription service', title: 'Transfer a prescription', meta: 'Move your prescriptions from another pharmacy to Medixly.',
+      rows: [['We contact them', 'Within 24 hours'], ['Time to complete', 'About 3 minutes'], ['You need', 'Previous pharmacy name']], actionLabel: 'Start a transfer', href: '#' } },
+  { tone: 'sand', icon: 'file-text', title: 'Upload a prescription', meta: 'Photo or PDF',
+    detail: { kicker: 'Prescription service', title: 'Upload a prescription', meta: 'Send us a photo or PDF of a paper prescription and we will take it from there.',
+      rows: [['Accepted', 'JPG, PNG, PDF'], ['Review', 'Same day'], ['Delivery', 'Secure upload']], actionLabel: 'Upload a file', href: '#' } }
+]);
+
+const consent = document.getElementById('rx-consent');
+const submit = document.getElementById('rx-submit');
+consent.addEventListener('change', () => { submit.disabled = !consent.checked; });
+</script>
+</body>
+</html>
