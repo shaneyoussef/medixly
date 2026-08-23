@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Sign in to the Medixly patient portal to see your prescriptions and secure messages.">
+<meta name="theme-color" content="#F3F2EF">
+<title>Sign in · Medixly</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="assets/css/medixly.css">
+</head>
+<body>
+
+<div class="auth">
+
+  <aside class="auth__brand">
+    <span class="grain-overlay"></span>
+    <span class="auth__mark" style="position:relative;color:inherit">Medixly</span>
+    <p class="auth__brand-copy">Your pharmacy, without the phone queue.</p>
+    <ul class="auth__brand-list" style="list-style:none;padding:0;margin:0">
+      <li>Refill or transfer a prescription online</li>
+      <li>Message a pharmacist — same-day reply</li>
+      <li>Book a vaccine or a minor ailment visit</li>
+      <li>Apply for copayment assistance</li>
+    </ul>
+  </aside>
+
+  <main class="auth__pane">
+    <div class="auth__topline">
+      <span class="auth__mark">Medixly</span>
+      <span class="overline">Patient portal</span>
+    </div>
+
+    <!-- ============================ Sign in ============================ -->
+    <form class="auth__form" id="view-signin" novalidate>
+      <div class="stack-y stack-y--sm">
+        <span class="overline hide-sm">Patient portal</span>
+        <h1 class="display-2">Sign in</h1>
+        <p class="lede">Enter your details to access your prescriptions and messages.</p>
+      </div>
+
+      <div class="stack-y stack-y--sm">
+        <a class="btn btn--secondary btn--full" href="index.html">Continue with Google</a>
+        <a class="btn btn--secondary btn--full" href="index.html">Continue with Apple</a>
+      </div>
+
+      <div class="divider-text">or continue with email</div>
+
+      <div class="stack-y">
+        <label class="field">
+          <span class="field__label">Email address <span class="req" aria-hidden="true">*</span></span>
+          <input class="field__control" type="email" name="email" autocomplete="email" placeholder="isabella@example.ca" required>
+        </label>
+        <label class="field">
+          <span class="field__label">Password <span class="req" aria-hidden="true">*</span></span>
+          <input class="field__control" type="password" name="password" autocomplete="current-password" required>
+        </label>
+      </div>
+
+      <div class="between">
+        <label class="checkbox"><input type="checkbox" name="remember"><span>Remember me</span></label>
+        <button type="button" class="link-btn" data-go="reset">Forgot password?</button>
+      </div>
+
+      <a class="btn btn--full" href="index.html">Sign in</a>
+
+      <div class="trust"><span data-icon="lock" data-icon-size="14"></span><span>Secure, PIPEDA-compliant delivery via Hushmail for Healthcare</span></div>
+
+      <p class="muted center">New to Medixly? <button type="button" class="link-btn link-btn--strong" data-go="signup">Create an account</button></p>
+
+      <hr class="rule">
+
+      <div class="stack-y stack-y--sm">
+        <a class="btn btn--ghost btn--full" href="index.html">Continue as a guest <span data-icon="arrow-right" data-icon-size="18"></span></a>
+        <p class="muted center">You can browse services and start a request. You'll need an account to see your prescriptions.</p>
+      </div>
+    </form>
+
+    <!-- ============================ Sign up ============================ -->
+    <form class="auth__form" id="view-signup" hidden novalidate>
+      <div class="stack-y stack-y--sm">
+        <h1 class="display-2">Create your account</h1>
+        <p class="lede">About 2 minutes. You'll be able to request refills and message a pharmacist right away.</p>
+      </div>
+
+      <div class="stack-y stack-y--sm" data-signup-idle>
+        <a class="btn btn--secondary btn--full" href="index.html">Continue with Google</a>
+        <a class="btn btn--secondary btn--full" href="index.html">Continue with Apple</a>
+      </div>
+
+      <div class="divider-text" data-signup-idle>or continue with email</div>
+
+      <div class="stack-y" data-signup-idle>
+        <label class="field">
+          <span class="field__label">Full name <span class="req" aria-hidden="true">*</span></span>
+          <input class="field__control" name="name" autocomplete="name" placeholder="Isabella Martinez" required>
+        </label>
+        <label class="field">
+          <span class="field__label">Email address <span class="req" aria-hidden="true">*</span></span>
+          <input class="field__control" type="email" name="email" autocomplete="email" placeholder="isabella@example.ca" required>
+        </label>
+        <label class="field">
+          <span class="field__label">Phone number <span class="req" aria-hidden="true">*</span></span>
+          <input class="field__control" type="tel" name="phone" autocomplete="tel" placeholder="(416) 555-0142" required>
+        </label>
+        <label class="field">
+          <span class="field__label">Password <span class="req" aria-hidden="true">*</span></span>
+          <input class="field__control" type="password" name="password" autocomplete="new-password" required>
+        </label>
+      </div>
+
+      <div class="panel stack-y stack-y--sm" data-signup-idle>
+        <span class="overline">Consent</span>
+        <label class="checkbox">
+          <input type="checkbox" id="consent">
+          <span>I consent to Medixly collecting and using my personal health information to provide pharmacy services, and to receiving secure messages about my care. I can withdraw consent at any time.</span>
+        </label>
+        <div class="trust" style="justify-content:flex-start"><span data-icon="lock" data-icon-size="14"></span><span>Handled under PIPEDA · delivered via Hushmail for Healthcare</span></div>
+      </div>
+
+      <button class="btn btn--full" id="create-account" type="button" data-signup-idle disabled>Create account</button>
+
+      <div class="notice" id="signup-done" hidden>
+        <div>
+          <p class="notice__title">Check your email</p>
+          <p class="notice__body">We've sent a verification link to finish setting up your account.</p>
+        </div>
+      </div>
+      <a class="btn btn--full" href="index.html" id="signup-continue" hidden>Continue to your account <span data-icon="arrow-right" data-icon-size="18"></span></a>
+
+      <p class="muted center">Already have an account? <button type="button" class="link-btn link-btn--strong" data-go="signin">Sign in</button></p>
+    </form>
+
+    <!-- =========================== Reset ============================== -->
+    <form class="auth__form" id="view-reset" hidden novalidate>
+      <div class="stack-y stack-y--sm">
+        <h1 class="display-2">Reset your password</h1>
+        <p class="lede">Enter the email on your account. We'll send a secure link to choose a new password.</p>
+      </div>
+
+      <label class="field" data-reset-idle>
+        <span class="field__label">Email address <span class="req" aria-hidden="true">*</span></span>
+        <input class="field__control" type="email" name="email" autocomplete="email" placeholder="isabella@example.ca" required>
+      </label>
+
+      <button class="btn btn--full" type="button" id="send-reset" data-reset-idle>Send reset link</button>
+
+      <div class="trust" data-reset-idle><span data-icon="lock" data-icon-size="14"></span><span>Secure, PIPEDA-compliant delivery</span></div>
+
+      <div class="notice" id="reset-done" hidden>
+        <div>
+          <p class="notice__title">Check your email</p>
+          <p class="notice__body">If an account exists for that address, we've sent a link to reset your password.</p>
+        </div>
+      </div>
+
+      <button type="button" class="link-btn center" data-go="signin">← Back to sign in</button>
+    </form>
+  </main>
+</div>
+
+<script type="module">
+import './assets/js/medixly.js';
+
+const views = {
+  signin: document.getElementById('view-signin'),
+  signup: document.getElementById('view-signup'),
+  reset: document.getElementById('view-reset')
+};
+
+function show(name) {
+  for (const [key, el] of Object.entries(views)) el.hidden = key !== name;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.querySelectorAll('[data-go]').forEach(btn =>
+  btn.addEventListener('click', () => show(btn.dataset.go)));
+
+const consent = document.getElementById('consent');
+const create = document.getElementById('create-account');
+consent.addEventListener('change', () => { create.disabled = !consent.checked; });
+
+create.addEventListener('click', () => {
+  views.signup.querySelectorAll('[data-signup-idle]').forEach(el => el.hidden = true);
+  document.getElementById('signup-done').hidden = false;
+  document.getElementById('signup-continue').hidden = false;
+});
+
+document.getElementById('send-reset').addEventListener('click', () => {
+  views.reset.querySelectorAll('[data-reset-idle]').forEach(el => el.hidden = true);
+  document.getElementById('reset-done').hidden = false;
+});
+</script>
+</body>
+</html>
