@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Your Medixly profile — details, active prescriptions, insurance coverage and communication preferences.">
+<meta name="theme-color" content="#F3F2EF">
+<title>Your profile · Medixly</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="assets/css/medixly.css">
+</head>
+<body>
+
+<div class="app">
+  <nav class="nav" data-nav="account" aria-label="Main"></nav>
+
+  <main class="app__main">
+
+    <header class="topbar">
+      <a class="icon-btn icon-btn--plain" href="index.html" aria-label="Back" data-icon="arrow-left" data-icon-size="20"></a>
+      <span class="topbar__title">Your profile</span>
+      <button class="icon-btn" type="button" aria-label="Edit profile" data-icon="pencil" data-icon-size="18"></button>
+    </header>
+
+    <div class="shell">
+
+      <div class="page-head" style="padding-top:clamp(24px,5vw,40px)">
+        <h1 class="display-2">Isabella<br>Martinez</h1>
+        <div class="cluster mt-2">
+          <span class="status-dot">Account verified</span>
+          <span class="badge badge--sage">Patient since 2021</span>
+        </div>
+        <p class="lede mt-2">Old Park Pharmacy · 1442 Bloor Street West, Toronto</p>
+      </div>
+
+      <div class="split">
+        <div>
+
+          <section class="section">
+            <div class="section-head">
+              <h2 class="section-head__title">Your details</h2>
+              <button class="section-head__action" type="button">Edit</button>
+            </div>
+            <div class="panel panel--flush mt-2">
+              <div class="row-list">
+                <div class="row-list__item"><span class="row-list__label">Date of birth</span><span class="row-list__value">4 March 1986</span></div>
+                <div class="row-list__item"><span class="row-list__label">Health card</span><span class="row-list__value">1234-567-890-AB</span></div>
+                <div class="row-list__item"><span class="row-list__label">Phone</span><span class="row-list__value">(416) 555-0142</span></div>
+                <div class="row-list__item"><span class="row-list__label">Email</span><span class="row-list__value">isabella@example.ca</span></div>
+                <div class="row-list__item"><span class="row-list__label">Allergies</span><span class="row-list__value">Penicillin, sulfa drugs</span></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="section-head">
+              <h2 class="section-head__title">Active prescriptions <span class="section-head__count">3</span></h2>
+              <a class="section-head__action" href="prescriptions.html">See all</a>
+            </div>
+            <div class="stack stack--shingle" id="stack-rx"></div>
+          </section>
+
+          <section class="section">
+            <div class="section-head">
+              <h2 class="section-head__title">Communication preferences</h2>
+            </div>
+            <div class="panel stack-y stack-y--lg mt-2">
+              <div class="pref-row">
+                <div>
+                  <p class="pref-row__title">Refill reminders</p>
+                  <p class="muted">A text when a prescription is running low</p>
+                </div>
+                <button class="switch" role="switch" aria-checked="true" aria-label="Refill reminders"><span class="switch__knob"></span></button>
+              </div>
+              <div class="pref-row">
+                <div>
+                  <p class="pref-row__title">Secure messages</p>
+                  <p class="muted">Email me when a pharmacist replies</p>
+                </div>
+                <button class="switch" role="switch" aria-checked="true" aria-label="Secure messages"><span class="switch__knob"></span></button>
+              </div>
+              <div class="pref-row">
+                <div>
+                  <p class="pref-row__title">Clinic announcements</p>
+                  <p class="muted">New vaccine clinic days and pool openings</p>
+                </div>
+                <button class="switch" role="switch" aria-checked="false" aria-label="Clinic announcements"><span class="switch__knob"></span></button>
+              </div>
+              <div class="trust" style="justify-content:flex-start;padding-top:14px;border-top:1px solid var(--border-hairline)">
+                <span data-icon="lock" data-icon-size="15"></span>
+                <span style="text-align:left">Secure messages are delivered via Hushmail for Healthcare under PIPEDA.</span>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <aside class="section">
+          <div class="section-head">
+            <h2 class="section-head__title">Insurance and coverage</h2>
+          </div>
+          <div class="panel panel--tinted mt-2">
+            <span class="grain-overlay"></span>
+            <div class="stack-y" style="position:relative">
+              <div class="between" style="align-items:flex-start">
+                <div class="stack-y stack-y--sm" style="gap:5px">
+                  <span class="overline" style="color:inherit;opacity:.7">Primary plan</span>
+                  <span style="font:700 1.4rem/1.12 var(--font-core);letter-spacing:-0.025em">Ontario Drug Benefit</span>
+                  <span class="muted" style="color:inherit;opacity:.8">Member 4821 663 907 · copayment $4.11</span>
+                </div>
+                <span data-icon="receipt" data-icon-size="26"></span>
+              </div>
+              <a class="btn btn--on-color btn--sm" href="clinic.html" style="align-self:flex-start">Apply for copayment help <span data-icon="arrow-up-right" data-icon-size="16"></span></a>
+            </div>
+          </div>
+
+          <div class="stack-y stack-y--sm mt-4">
+            <a class="btn btn--secondary btn--full" href="chat.html"><span data-icon="message-circle" data-icon-size="18"></span>Message a pharmacist</a>
+            <a class="btn btn--ghost btn--full" href="signin.html">Sign out</a>
+          </div>
+        </aside>
+      </div>
+
+      <div style="height:clamp(48px,8vw,80px)"></div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+import { renderCards } from './assets/js/medixly.js';
+
+renderCards(document.getElementById('stack-rx'), [
+  {
+    tone: 'sand', icon: 'pill', title: 'Metformin 500 mg', meta: '2 refills left · ready for pickup',
+    detail: { kicker: 'Active prescription', title: 'Metformin 500 mg', meta: 'Ready for pickup at Old Park Pharmacy.',
+      rows: [['Refills left', '2'], ['Last filled', '11 July'], ['Copayment', '$4.11']], actionLabel: 'Request a refill', href: 'prescriptions.html' }
+  },
+  {
+    tone: 'mist', icon: 'pill', title: 'Ramipril 5 mg', meta: '1 refill left · due 24 August',
+    detail: { kicker: 'Active prescription', title: 'Ramipril 5 mg', meta: 'Next fill due Tuesday, 24 August.',
+      rows: [['Refills left', '1'], ['Next due', '24 August'], ['Copayment', '$4.11']], actionLabel: 'Request a refill', href: 'prescriptions.html' }
+  },
+  {
+    tone: 'clay', icon: 'pill', title: 'Atorvastatin 20 mg', meta: 'No refills left · ask your doctor',
+    detail: { kicker: 'Active prescription', title: 'Atorvastatin 20 mg', meta: 'No refills remaining — your prescriber needs to renew this one.',
+      rows: [['Refills left', '0'], ['Last filled', '2 June'], ['Prescriber', 'Dr. A. Chen']], actionLabel: 'Ask a pharmacist', href: 'chat.html' }
+  }
+]);
+</script>
+</body>
+</html>
