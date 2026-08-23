@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Secure messaging with a Medixly pharmacist — same-day replies, delivered via Hushmail for Healthcare.">
+<meta name="theme-color" content="#F3F2EF">
+<title>Message a pharmacist · Medixly</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="assets/css/medixly.css">
+<style>
+  /* The chat column fills the viewport minus the mobile tab bar. */
+  .app__main--chat {
+    flex: none;              /* flex-basis would otherwise beat the height below */
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+  .app__main--chat .chat { flex: 1; min-height: 0; }
+  .composer { margin-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px)); }
+  @media (min-width: 1024px) { .composer { margin-bottom: 0; } }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <nav class="nav" data-nav="home" aria-label="Main"></nav>
+
+  <main class="app__main app__main--chat">
+    <div class="chat">
+
+      <header class="topbar">
+        <a class="icon-btn icon-btn--plain" href="index.html" aria-label="Back" data-icon="arrow-left" data-icon-size="20"></a>
+        <div class="topbar__title">
+          <span>Nadia Okafor, RPh</span>
+          <span class="status-dot">Pharmacist · same-day reply</span>
+        </div>
+        <a class="icon-btn" href="tel:+14165550142" aria-label="Call the pharmacy" data-icon="phone" data-icon-size="20"></a>
+      </header>
+
+      <div class="chat__log" id="log">
+        <div class="trust" style="padding:2px 12px 6px">
+          <span data-icon="lock" data-icon-size="14"></span>
+          <span>Secure message, delivered via Hushmail for Healthcare</span>
+        </div>
+        <span class="chat__daymark">Monday, 12 July</span>
+      </div>
+
+      <div class="quick-replies" id="quick"></div>
+
+      <form class="composer" id="composer">
+        <button class="icon-btn icon-btn--plain" type="button" aria-label="Attach a photo" data-icon="paperclip" data-icon-size="20"></button>
+        <label class="visually-hidden" for="draft">Write a message</label>
+        <input class="field__control" id="draft" placeholder="Write a message" autocomplete="off">
+        <button class="icon-btn icon-btn--solid" type="submit" aria-label="Send message" data-icon="arrow-up" data-icon-size="20"></button>
+      </form>
+
+    </div>
+  </main>
+</div>
+
+<script type="module">
+import { icon } from './assets/js/medixly.js';
+
+const log = document.getElementById('log');
+
+const seed = [
+  { who: 'them', text: "Hello Isabella. I've reviewed your refill request for Metformin 500 mg. It's ready for pickup today.", time: '9:04' },
+  { who: 'me', text: 'Thank you. Can I take it with the new blood pressure tablets?', time: '9:12' },
+  { who: 'them', text: "Yes. There's no interaction between the two. Take the Metformin with food to reduce stomach upset.", time: '9:18' },
+  { who: 'me', text: 'Good to know. Do I need a new prescription next month?', time: '9:21' },
+  { who: 'them', text: 'You have two refills left on file, so no. I can also set up automatic refills if that helps.', time: '9:24' }
+];
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function addBubble({ who, text, time }) {
+  const el = document.createElement('div');
+  el.className = `bubble bubble--${who === 'me' ? 'me' : 'them'}`;
+  el.innerHTML = `
+    <div class="bubble__body">${who === 'me' ? '<span class="grain-overlay"></span>' : ''}<p>${escapeHtml(text)}</p></div>
+    <span class="bubble__time">${time}</span>`;
+  log.appendChild(el);
+  return el;
+}
+
+seed.forEach(addBubble);
+
+// Prescription card attached to the thread
+const attach = document.createElement('div');
+attach.className = 'attach-card';
+attach.innerHTML = `
+  <span class="grain-overlay"></span>
+  <div class="stack-y" style="position:relative">
+    <div class="between" style="align-items:flex-start">
+      <div class="stack-y stack-y--sm" style="gap:4px">
+        <span class="overline" style="color:inherit;opacity:.7">Attached to this chat</span>
+        <span style="font:700 1.25rem/1.15 var(--font-core);letter-spacing:-0.02em">Metformin 500 mg</span>
+        <span class="muted" style="color:inherit;opacity:.8">Refill · ready for pickup</span>
+      </div>
+      ${icon('pill', 26)}
+    </div>
+    <a class="btn btn--on-color btn--sm" href="prescriptions.html" style="align-self:flex-start">View prescription ${icon('arrow-up-right', 16)}</a>
+  </div>`;
+log.appendChild(attach);
+
+const typing = document.createElement('div');
+typing.className = 'typing';
+typing.innerHTML = '<i></i><i></i><i></i><span>Nadia is typing</span>';
+log.appendChild(typing);
+
+function scrollToEnd() { log.scrollTop = log.scrollHeight; }
+scrollToEnd();
+requestAnimationFrame(scrollToEnd);
+window.addEventListener('load', scrollToEnd);
+if (document.fonts) document.fonts.ready.then(scrollToEnd);
+
+// ---- Sending ----
+let sent = 0;
+function send(text) {
+  if (!text.trim()) return;
+  sent += 1;
+  const time = '9:' + String(30 + sent).padStart(2, '0');
+  log.insertBefore(addBubble({ who: 'me', text: text.trim(), time }), typing);
+  scrollToEnd();
+}
+
+document.getElementById('composer').addEventListener('submit', e => {
+  e.preventDefault();
+  const input = document.getElementById('draft');
+  send(input.value);
+  input.value = '';
+});
+
+const quick = document.getElementById('quick');
+['Set up automatic refills', 'Book a vaccine', 'Something else'].forEach(label => {
+  const b = document.createElement('button');
+  b.className = 'chip';
+  b.type = 'button';
+  b.textContent = label;
+  b.addEventListener('click', () => send(label));
+  quick.appendChild(b);
+});
+</script>
+</body>
+</html>
