@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Medixly patient portal — refill or transfer a prescription, talk to a pharmacist, book a vaccine and start a minor ailment assessment online.">
+<meta name="theme-color" content="#F3F2EF">
+<title>Home · Medixly</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="assets/css/medixly.css">
+</head>
+<body>
+
+<div class="app">
+  <nav class="nav" data-nav="home" aria-label="Main"></nav>
+
+  <main class="app__main">
+    <div class="shell">
+
+      <header class="page-head">
+        <h1 class="display-1">Hello</h1>
+        <div class="mt-2 stack-y stack-y--sm" style="padding-bottom:18px;border-bottom:1px solid var(--border-hairline)">
+          <span class="status-dot">Isabella Martinez</span>
+          <span class="muted">Last update: <strong style="color:var(--text-display);font-weight:600">Monday, 12 July</strong></span>
+        </div>
+        <p class="lede mt-3">Six things you can start online right now. A pharmacist reads every request the same day.</p>
+      </header>
+
+      <div class="split">
+        <div>
+
+          <section class="section">
+            <div class="section-head">
+              <h2 class="section-head__title">Prescription services <span class="section-head__count">3</span></h2>
+              <a class="section-head__action" href="prescriptions.html">See all</a>
+            </div>
+            <div class="stack stack--shingle" id="stack-services"></div>
+          </section>
+
+          <section class="section">
+            <div class="section-head">
+              <h2 class="section-head__title">Pharmacy clinic <span class="section-head__count">3</span></h2>
+              <a class="section-head__action" href="clinic.html">See all</a>
+            </div>
+            <div class="stack stack--shingle" id="stack-clinic"></div>
+          </section>
+
+          <section class="section">
+            <div class="section-head">
+              <h2 class="section-head__title">Recent requests <span class="section-head__count">4</span></h2>
+              <a class="section-head__action" href="prescriptions.html">See all</a>
+            </div>
+            <div class="stack stack--shingle" id="stack-recent"></div>
+          </section>
+
+        </div>
+
+        <aside class="section" style="margin-top:clamp(32px,6vw,56px)">
+          <div class="panel stack-y">
+            <div>
+              <span class="overline">Minor ailment</span>
+              <h2 class="title-2 mt-1">Start an assessment</h2>
+            </div>
+            <label class="field">
+              <span class="field__label">Choose a condition</span>
+              <select class="field__control" id="condition">
+                <option value="" selected disabled>Select a condition</option>
+              </select>
+            </label>
+            <a class="btn btn--full" href="clinic.html">Start assessment <span data-icon="arrow-right" data-icon-size="18"></span></a>
+            <p class="muted">A pharmacist can assess and prescribe for these conditions.</p>
+            <div class="trust" style="justify-content:flex-start"><span data-icon="lock" data-icon-size="14"></span><span>Secure, PIPEDA-compliant delivery</span></div>
+          </div>
+        </aside>
+      </div>
+
+      <div style="height:clamp(48px,8vw,80px)"></div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+import { renderCards } from './assets/js/medixly.js';
+
+const services = [
+  {
+    tone: 'clay', icon: 'refresh', title: 'Refill a prescription', meta: 'Online or by phone',
+    detail: {
+      kicker: 'Prescription service', title: 'Refill a prescription',
+      meta: 'Running low? Refill your existing medications online or by phone.',
+      rows: [['Typical turnaround', 'Same day'], ['Time to complete', 'About 2 minutes'], ['Pickup', 'Old Park Pharmacy']],
+      actionLabel: 'Start a refill', href: 'prescriptions.html'
+    }
+  },
+  {
+    tone: 'sage', icon: 'repeat', title: 'Transfer a prescription', meta: 'From another pharmacy',
+    detail: {
+      kicker: 'Prescription service', title: 'Transfer a prescription',
+      meta: 'Move your prescriptions from another pharmacy to Medixly.',
+      rows: [['We contact them', 'Within 24 hours'], ['Time to complete', 'About 3 minutes'], ['You need', 'Previous pharmacy name']],
+      actionLabel: 'Start a transfer', href: 'prescriptions.html'
+    }
+  },
+  {
+    tone: 'sand', icon: 'message-circle', title: 'Talk to a pharmacist', meta: 'No appointment needed',
+    detail: {
+      kicker: 'Prescription service', title: 'Talk to a pharmacist',
+      meta: 'Ask about a medication, side effect or interaction. No appointment needed.',
+      rows: [['Reply time', 'Same day'], ['Cost', 'No charge'], ['Delivery', 'Secure message']],
+      actionLabel: 'Message a pharmacist', href: 'chat.html'
+    }
+  }
+];
+
+const clinic = [
+  {
+    tone: 'amber', icon: 'file-text', title: 'Copayment application', meta: 'We file the paperwork',
+    detail: {
+      kicker: 'Pharmacy clinic', title: 'Copayment application',
+      meta: 'Apply for copayment assistance and we will file the paperwork with you.',
+      rows: [['Time to complete', 'About 5 minutes'], ['Review', '3 to 5 business days'], ['You need', 'Health card, income proof']],
+      actionLabel: 'Start an application', href: 'clinic.html'
+    }
+  },
+  {
+    tone: 'mist', icon: 'heart-pulse', title: 'Minor ailment visit', meta: '16 conditions',
+    detail: {
+      kicker: 'Pharmacy clinic', title: 'Minor ailment visit',
+      meta: 'A pharmacist can assess and prescribe for sixteen common conditions.',
+      rows: [['Conditions covered', '16'], ['Assessment', 'Same day'], ['Cost', 'Covered in Ontario']],
+      actionLabel: 'Start assessment', href: 'clinic.html'
+    }
+  },
+  {
+    tone: 'slate', icon: 'syringe', title: 'Book a vaccine', meta: 'Pick a clinic day',
+    detail: {
+      kicker: 'Pharmacy clinic', title: 'Book a vaccine',
+      meta: 'Pick a clinic day or join a pool and we will confirm your slot by email.',
+      rows: [['Next clinic day', 'Saturday, 17 July'], ['Confirmation', 'Within 24 hours'], ['Bring', 'Health card']],
+      actionLabel: 'Choose a clinic day', href: 'clinic.html'
+    }
+  }
+];
+
+const recent = [
+  {
+    tone: 'sand', title: 'Metformin 500 mg refill', meta: 'Ready for pickup · 11 July',
+    detail: {
+      kicker: 'Recent request', title: 'Metformin 500 mg',
+      meta: 'Refill · ready for pickup since Monday, 12 July.',
+      rows: [['Status', 'Ready for pickup'], ['Refills left', '2'], ['Copayment', '$4.11']],
+      actionLabel: 'View prescription', href: 'prescriptions.html'
+    }
+  },
+  {
+    tone: 'sage', title: 'Transfer from Bloor Rexall', meta: 'In progress · 9 July',
+    detail: {
+      kicker: 'Recent request', title: 'Transfer from Bloor Rexall',
+      meta: 'In progress since Friday, 9 July.',
+      rows: [['Status', 'Contacting pharmacy'], ['Started', '9 July'], ['Expected', 'Within 24 hours']],
+      actionLabel: 'Message a pharmacist', href: 'chat.html'
+    }
+  },
+  {
+    tone: 'amber', title: 'Copayment application', meta: 'Awaiting documents · 4 July',
+    detail: {
+      kicker: 'Recent request', title: 'Copayment application',
+      meta: 'Awaiting documents since Sunday, 4 July.',
+      rows: [['Status', 'Awaiting documents'], ['Missing', 'Income proof'], ['Review', '3 to 5 days']],
+      actionLabel: 'Upload documents', href: 'clinic.html'
+    }
+  },
+  {
+    tone: 'clay', title: 'Flu shot — Saturday clinic', meta: 'Confirmed · 28 June',
+    detail: {
+      kicker: 'Recent request', title: 'Flu shot',
+      meta: 'Confirmed for Saturday clinic, 28 June.',
+      rows: [['Status', 'Confirmed'], ['Clinic day', 'Saturday, 28 June'], ['Time', '10:20 am']],
+      actionLabel: 'View booking', href: 'clinic.html'
+    }
+  }
+];
+
+renderCards(document.getElementById('stack-services'), services);
+renderCards(document.getElementById('stack-clinic'), clinic);
+renderCards(document.getElementById('stack-recent'), recent);
+
+const conditions = ['Acne','Allergic rhinitis','Candidal stomatitis','Conjunctivitis','Dermatitis','Dysmenorrhea','GERD','Hemorrhoids','Herpes labialis','Impetigo','Insect bites / hives','Musculoskeletal sprains','Nausea in pregnancy','Tick bites','UTI','Vulvovaginal candidiasis'];
+const select = document.getElementById('condition');
+for (const c of conditions) {
+  const o = document.createElement('option');
+  o.value = o.textContent = c;
+  select.appendChild(o);
+}
+</script>
+</body>
+</html>
