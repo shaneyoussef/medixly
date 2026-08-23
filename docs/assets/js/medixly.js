@@ -1,0 +1,181 @@
+/* ==========================================================================
+   Medixly — shared front-end behaviour
+   Plain ES module, no build step, no dependencies.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Icon sprite — injected once, referenced with <svg><use href="#i-name"></use>
+   -------------------------------------------------------------------------- */
+const SPRITE = `
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+<symbol id="i-house" viewBox="0 0 24 24"><path d="M3 10.2 12 3l9 7.2V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+<symbol id="i-pill" viewBox="0 0 24 24"><path d="M10.5 20.5a5.66 5.66 0 0 1-8-8l7-7a5.66 5.66 0 0 1 8 8z"/><path d="m8.5 8.5 7 7"/></symbol>
+<symbol id="i-stethoscope" viewBox="0 0 24 24"><path d="M4 3v6a5 5 0 0 0 10 0V3"/><path d="M4 3h2M12 3h2"/><path d="M9 14v2a5 5 0 0 0 10 0v-1"/><circle cx="19" cy="12" r="2.5"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+<symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+<symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5M11 18l-6-6 6-6"/></symbol>
+<symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+<symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><path d="M6 3h3l2 5-2.5 1.5a12 12 0 0 0 6 6L16 13l5 2v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4 5.2 2 2 0 0 1 6 3"/></symbol>
+<symbol id="i-paperclip" viewBox="0 0 24 24"><path d="M20 11.5 12 19.4a5 5 0 0 1-7-7l8.2-8.1a3.3 3.3 0 0 1 4.7 4.7L9.6 17.2a1.7 1.7 0 0 1-2.4-2.4l7.6-7.5"/></symbol>
+<symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4L20 8a2.8 2.8 0 0 0-4-4L4 16z"/></symbol>
+<symbol id="i-receipt" viewBox="0 0 24 24"><path d="M5 3h14v18l-2.3-1.6-2.4 1.6-2.3-1.6L9.7 21l-2.4-1.6L5 21z"/><path d="M9 8h6M9 12h6"/></symbol>
+<symbol id="i-message-circle" viewBox="0 0 24 24"><path d="M21 11.5A8.4 8.4 0 0 1 12 20a8.9 8.9 0 0 1-4-.9L3 20l1-4.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></symbol>
+<symbol id="i-repeat" viewBox="0 0 24 24"><path d="M4 9V7a2 2 0 0 1 2-2h11l-3-3m6 9v2a2 2 0 0 1-2 2H7l3 3"/></symbol>
+<symbol id="i-syringe" viewBox="0 0 24 24"><path d="m14 4 6 6M17 7l-9 9-4 1 1-4 9-9z"/><path d="m10 11 3 3"/></symbol>
+<symbol id="i-file-text" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+<symbol id="i-heart-pulse" viewBox="0 0 24 24"><path d="M12 20.5S3.5 15 3.5 9.2A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.5 2.8c0 5.8-8.5 11.3-8.5 11.3z"/><path d="M4 12h3l2-3 2.5 5 2-3h4.5"/></symbol>
+</svg>`;
+
+function injectSprite() {
+  if (document.getElementById('mx-sprite')) return;
+  const host = document.createElement('div');
+  host.id = 'mx-sprite';
+  host.innerHTML = SPRITE;
+  const svg = host.firstElementChild;
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '1.7');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  document.body.prepend(host);
+}
+
+/** Build an <svg> that references a sprite symbol. */
+export function icon(name, size = 22) {
+  return `<svg class="icon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"
+    aria-hidden="true"><use href="#i-${name}"></use></svg>`;
+}
+
+/* --------------------------------------------------------------------------
+   Nav — rendered from one definition so every page stays in sync
+   -------------------------------------------------------------------------- */
+const NAV = [
+  { id: 'home', href: 'index.html', label: 'Home', icon: 'house' },
+  { id: 'prescriptions', href: 'prescriptions.html', label: 'Prescriptions', icon: 'pill' },
+  { id: 'clinic', href: 'clinic.html', label: 'Clinic', icon: 'stethoscope' },
+  { id: 'account', href: 'profile.html', label: 'Account', icon: 'user' }
+];
+
+function renderNav() {
+  const nav = document.querySelector('[data-nav]');
+  if (!nav) return;
+  const current = nav.dataset.nav;
+  nav.innerHTML =
+    `<span class="nav__brand">Medixly</span>` +
+    NAV.map(item => `
+      <a class="nav__link" href="${item.href}"${item.id === current ? ' aria-current="page"' : ''}>
+        ${icon(item.icon, 22)}<span>${item.label}</span>
+      </a>`).join('');
+}
+
+/* --------------------------------------------------------------------------
+   Detail sheet — one sheet element per page, filled on demand
+   -------------------------------------------------------------------------- */
+const TONE_CLASS = {
+  sand: 'card--sand', sage: 'card--sage', amber: 'card--amber',
+  mist: 'card--mist', clay: 'card--clay', slate: 'card--slate'
+};
+
+let sheetEl = null;
+let lastFocus = null;
+
+function ensureSheet() {
+  if (sheetEl) return sheetEl;
+  sheetEl = document.createElement('div');
+  sheetEl.className = 'sheet';
+  sheetEl.dataset.open = 'false';
+  sheetEl.setAttribute('role', 'dialog');
+  sheetEl.setAttribute('aria-modal', 'true');
+  sheetEl.innerHTML = `<div class="sheet__panel"><span class="grain-overlay"></span><div class="sheet__content"></div></div>`;
+  sheetEl.addEventListener('click', e => { if (e.target === sheetEl) closeSheet(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+  document.body.appendChild(sheetEl);
+  return sheetEl;
+}
+
+export function openSheet(detail) {
+  const el = ensureSheet();
+  const panel = el.querySelector('.sheet__panel');
+  lastFocus = document.activeElement;
+
+  panel.className = 'sheet__panel ' + (TONE_CLASS[detail.tone] || 'card--sand');
+  panel.querySelector('.sheet__content').innerHTML = `
+    <div class="sheet__head">
+      <span class="overline" style="color:inherit;opacity:.7">${detail.kicker}</span>
+      <button class="icon-btn btn--on-color" data-close aria-label="Close">${icon('x', 18)}</button>
+    </div>
+    <h2 class="sheet__title">${detail.title}</h2>
+    <p class="sheet__meta">${detail.meta}</p>
+    <div class="sheet__rows">
+      ${detail.rows.map(([l, v]) => `<div class="sheet__row"><span>${l}</span><span>${v}</span></div>`).join('')}
+    </div>
+    <div class="sheet__foot">
+      <a class="btn btn--on-color btn--full" href="${detail.href || '#'}">${detail.actionLabel} ${icon('arrow-right', 18)}</a>
+      <div class="trust">${icon('lock', 14)}<span>Sent securely via Hushmail for Healthcare</span></div>
+    </div>`;
+
+  panel.querySelector('[data-close]').addEventListener('click', closeSheet);
+  el.dataset.open = 'true';
+  document.body.style.overflow = 'hidden';
+  panel.querySelector('[data-close]').focus();
+}
+
+export function closeSheet() {
+  if (!sheetEl || sheetEl.dataset.open !== 'true') return;
+  sheetEl.dataset.open = 'false';
+  document.body.style.overflow = '';
+  if (lastFocus) lastFocus.focus();
+}
+
+/* --------------------------------------------------------------------------
+   Card grids — build from data so markup stays short and consistent
+   -------------------------------------------------------------------------- */
+export function renderCards(host, items) {
+  if (!host) return;
+  host.innerHTML = items.map((it, i) => `
+    <button class="card ${TONE_CLASS[it.tone] || ''}" data-i="${i}">
+      <span class="grain-overlay"></span>
+      ${it.icon ? `<span class="card__icon">${icon(it.icon, 24)}</span>` : ''}
+      <span class="card__title">${it.title}</span>
+      <span class="card__meta">${it.meta}</span>
+    </button>`).join('');
+
+  host.querySelectorAll('.card').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = items[Number(btn.dataset.i)];
+      if (item.detail) openSheet({ tone: item.tone, ...item.detail });
+      else if (item.href) window.location.href = item.href;
+    });
+  });
+}
+
+/* --------------------------------------------------------------------------
+   Toggle switches
+   -------------------------------------------------------------------------- */
+function wireSwitches() {
+  document.querySelectorAll('.switch').forEach(sw => {
+    sw.addEventListener('click', () => {
+      sw.setAttribute('aria-checked', sw.getAttribute('aria-checked') === 'true' ? 'false' : 'true');
+    });
+  });
+}
+
+/* --------------------------------------------------------------------------
+   Boot
+   -------------------------------------------------------------------------- */
+function boot() {
+  injectSprite();
+  renderNav();
+  wireSwitches();
+  document.querySelectorAll('[data-icon]').forEach(el => {
+    el.innerHTML = icon(el.dataset.icon, Number(el.dataset.iconSize) || 22) + el.innerHTML;
+  });
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
