@@ -582,6 +582,103 @@ a { color: var(--ink-1); text-decoration: none; }
   .card { min-height: 150px; padding: 24px; padding-right: 60px; }
 }
 
+/* Home wallet: the frame stays still; only this deck owns scrolling. */
+.home-wallet {
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.home-wallet .app {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.home-wallet .app__main {
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+  padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+}
+
+.home-wallet .shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-width: 800px;
+}
+
+.wallet-head {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 20px;
+  padding: calc(20px + env(safe-area-inset-top, 0px)) 0 20px;
+}
+
+.wallet-head .display-1 { font-size: clamp(2.5rem, 7vw, 4rem); }
+
+.wallet-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+  padding: 4px 4px 16px;
+  margin-inline: -4px;
+  scroll-padding-block: 16px;
+}
+
+.stack--wallet {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 0;
+  isolation: isolate;
+  /* Extra runway lets the final card rise clear of the navigation. */
+  padding-bottom: 32px;
+}
+
+.stack--wallet .card {
+  position: sticky;
+  top: calc(var(--card-index, 0) * 12px);
+  z-index: var(--card-index, 0);
+  flex: none;
+  min-height: 180px;
+  margin-top: -60px;
+  box-shadow: 0 -8px 20px -10px rgba(28, 29, 27, .28);
+}
+
+.stack--wallet .card:first-child { margin-top: 0; }
+.stack--wallet .card:hover { transform: none; }
+
+/* A focused card must remain readable above the overlapped deck. */
+.stack--wallet .card:focus-visible { z-index: 20; }
+
+@media (min-width: 1024px) {
+  .home-wallet .app__main { padding-bottom: 0; }
+  .wallet-head { padding-top: 32px; padding-bottom: 28px; }
+  .wallet-scroll { padding-bottom: 24px; }
+}
+
+@media (max-height: 500px) {
+  .wallet-head { padding-block: 8px; }
+  .wallet-head .display-1 { font-size: 2rem; }
+  .stack--wallet .card { top: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stack--wallet .card { position: relative; top: auto; }
+}
+
 /* --------------------------------------------------------------------------
    8. Panels, fields, lists
    -------------------------------------------------------------------------- */
