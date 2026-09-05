@@ -889,7 +889,7 @@ select.field__control {
   inset: 0;
   background: rgba(28, 29, 27, .34);
   opacity: 0;
-  transition: opacity 400ms var(--ease);
+  transition: opacity 180ms var(--ease);
 }
 
 .sheet[data-open="true"] { visibility: visible; pointer-events: auto; }
@@ -911,6 +911,11 @@ select.field__control {
 }
 
 .sheet__content { position: relative; }
+
+/* Keep the moving surface to compositor-friendly transform and opacity.
+   The filtered grain and large shadow return once the surface is still. */
+.sheet[data-animating="true"] .sheet__panel { will-change: transform; box-shadow: none; }
+.sheet[data-animating="true"] .sheet__panel > .grain-overlay { visibility: hidden; }
 
 .sheet__head {
   display: flex;

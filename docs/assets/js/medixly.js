@@ -90,7 +90,7 @@ let backgroundState = [];
 let bodyStyle = null;
 let scrollPosition = 0;
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-const sheetMotion = { duration: 620, easing: 'cubic-bezier(.22, 1, .36, 1)' };
+const sheetMotion = { duration: 300, easing: 'cubic-bezier(.2, .8, .2, 1)' };
 
 function cancelSheetAnimations() {
   sheetAnimations.forEach(animation => animation.cancel());
@@ -110,8 +110,13 @@ function cardTransform(panel) {
 function lockBackground() {
   scrollPosition = window.scrollY;
   const properties = ['position', 'top', 'width', 'overflow'];
-  bodyStyle = properties.map(name => [name, document.body.style.getPropertyValue(name)]);
-  Object.assign(document.body.style, { position: 'fixed', top: `-${scrollPosition}px`, width: '100%', overflow: 'hidden' });
+  // The wallet page is already fixed. Rewriting its body geometry would
+  // needlessly remeasure the entire card deck on every open and close.
+  bodyStyle = null;
+  if (!document.body.classList.contains('home-wallet')) {
+    bodyStyle = properties.map(name => [name, document.body.style.getPropertyValue(name)]);
+    Object.assign(document.body.style, { position: 'fixed', top: `-${scrollPosition}px`, width: '100%', overflow: 'hidden' });
+  }
   backgroundState = [...document.body.children]
     .filter(el => el !== sheetEl && !['SCRIPT', 'STYLE'].includes(el.tagName))
     .map(el => [el, el.inert]);
@@ -126,7 +131,7 @@ function unlockBackground() {
     else document.body.style.removeProperty(name);
   });
   bodyStyle = null;
-  window.scrollTo({ top: scrollPosition, behavior: 'instant' });
+  if (window.scrollY !== scrollPosition) window.scrollTo({ top: scrollPosition, behavior: 'instant' });
 }
 
 function ensureSheet() {
@@ -182,21 +187,26 @@ export function openSheet(detail, card = null) {
   panel.querySelector('[data-close]').addEventListener('click', closeSheet);
   el.hidden = false;
   el.dataset.closing = 'false';
+  el.dataset.animating = 'true';
   el.dataset.open = 'true';
   lockBackground();
   panel.scrollTop = 0;
   const from = cardTransform(panel);
   sourceCard?.classList.add('card--expanded');
   if (!reducedMotion.matches && typeof panel.animate === 'function') {
-    sheetAnimations.push(panel.animate([
-      { transform: from || 'translateY(24px)', borderRadius: '22px' },
-      { transform: 'none', borderRadius: getComputedStyle(panel).borderRadius }
-    ], sheetMotion));
+    const expand = panel.animate([
+      { transform: from || 'translateY(24px)' },
+      { transform: 'none' }
+    ], sheetMotion);
+    sheetAnimations.push(expand);
+    expand.finished.then(() => {
+      if (!closingSheet) el.dataset.animating = 'false';
+    }).catch(() => {});
     sheetAnimations.push(panel.querySelector('.sheet__content').animate([
-      { opacity: 0, transform: 'translateY(12px)' },
-      { opacity: 1, transform: 'none' }
-    ], { duration: 300, delay: 140, fill: 'backwards', easing: sheetMotion.easing }));
-  }
+      { opacity: .3 },
+      { opacity: 1 }
+    ], { duration: 160, easing: sheetMotion.easing }));
+  } else el.dataset.animating = 'false';
   panel.querySelector('[data-close]').focus({ preventScroll: true });
 }
 
@@ -205,24 +215,25 @@ export async function closeSheet() {
   closingSheet = true;
   const panel = sheetEl.querySelector('.sheet__panel');
   const currentTransform = getComputedStyle(panel).transform;
-  const currentRadius = getComputedStyle(panel).borderRadius;
   const content = panel.querySelector('.sheet__content');
   const currentOpacity = getComputedStyle(content).opacity;
   cancelSheetAnimations();
   const to = cardTransform(panel);
   sheetEl.dataset.closing = 'true';
+  sheetEl.dataset.animating = 'true';
   if (!reducedMotion.matches && typeof panel.animate === 'function') {
     const collapse = panel.animate([
-      { transform: currentTransform, borderRadius: currentRadius },
-      { transform: to || 'translateY(24px)', borderRadius: '22px' }
-    ], { ...sheetMotion, duration: 480, fill: 'forwards' });
+      { transform: currentTransform },
+      { transform: to || 'translateY(24px)' }
+    ], { ...sheetMotion, duration: 220, fill: 'forwards' });
     sheetAnimations.push(collapse, content.animate([
       { opacity: currentOpacity }, { opacity: 0 }
-    ], { duration: 130, fill: 'forwards' }));
+    ], { duration: 100, fill: 'forwards' }));
     await collapse.finished.catch(() => {});
   }
   sheetEl.dataset.open = 'false';
   sheetEl.hidden = true;
+  sheetEl.dataset.animating = 'false';
   cancelSheetAnimations();
   sourceCard?.classList.remove('card--expanded');
   unlockBackground();
