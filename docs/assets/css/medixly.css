@@ -108,6 +108,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
+  scrollbar-gutter: stable;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   -webkit-text-size-adjust: 100%;
@@ -523,7 +524,11 @@ a { color: var(--ink-1); text-decoration: none; }
               box-shadow var(--dur-base) var(--ease);
 }
 
-.card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+@media (hover: hover) and (pointer: fine) {
+  .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+}
+
+.card--expanded { visibility: hidden; }
 
 .card__title {
   position: relative;
@@ -546,18 +551,25 @@ a { color: var(--ink-1); text-decoration: none; }
 .card--clay { background: var(--clay); color: var(--clay-ink); }
 .card--slate { background: var(--slate-blue); color: var(--slate-blue-ink); }
 
-/* Shingled overlap: mobile only. Cards tuck under one another like the
-   reference design. On wider screens they become a plain grid, which is
-   what actually reads well when there's horizontal room. */
+/* Wallet stack: native sticky positioning compresses the cards into a deck
+   as the page scrolls. Each section releases its deck at its own boundary. */
 @media (max-width: 639px) {
-  .stack--shingle { gap: 0; }
+  .stack--shingle { gap: 0; isolation: isolate; }
   .stack--shingle .card {
+    position: sticky;
+    top: calc(env(safe-area-inset-top, 0px) + 16px + var(--card-index, 0) * 22px);
+    z-index: var(--card-index, 0);
+    align-self: start;
+    min-height: 160px;
     margin-top: -42px;
     box-shadow: 0 -8px 20px -10px rgba(28, 29, 27, .28);
   }
   .stack--shingle .card:first-child { margin-top: 0; box-shadow: var(--shadow-2); }
-  .stack--shingle .card:last-child { min-height: 116px; }
-  .stack--shingle .card:active { transform: translateY(-8px); }
+  .stack--shingle .card:last-child { min-height: 160px; }
+}
+
+@media (max-width: 639px) and (prefers-reduced-motion: reduce) {
+  .stack--shingle .card { position: relative; top: auto; }
 }
 
 @media (min-width: 640px) {
@@ -738,30 +750,38 @@ select.field__control {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background: rgba(28, 29, 27, .34);
-  opacity: 0;
+  visibility: hidden;
   pointer-events: none;
-  transition: opacity var(--dur-base) var(--ease);
 }
 
-.sheet[data-open="true"] { opacity: 1; pointer-events: auto; }
+.sheet::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(28, 29, 27, .34);
+  opacity: 0;
+  transition: opacity 400ms var(--ease);
+}
+
+.sheet[data-open="true"] { visibility: visible; pointer-events: auto; }
+.sheet[data-open="true"]::before { opacity: 1; }
+.sheet[data-closing="true"]::before { opacity: 0; }
 
 .sheet__panel {
   position: relative;
   overflow: auto;
   width: 100%;
-  max-width: 560px;
-  max-height: 92dvh;
-  padding: 28px var(--gutter) calc(32px + env(safe-area-inset-bottom, 0px));
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  background: var(--sand);
-  color: var(--sand-ink);
+  max-width: none;
+  height: 100dvh;
+  max-height: 100dvh;
+  overscroll-behavior: contain;
+  padding: calc(28px + env(safe-area-inset-top, 0px)) var(--gutter) calc(32px + env(safe-area-inset-bottom, 0px));
+  border-radius: 0;
   box-shadow: var(--shadow-lift);
-  transform: translateY(16px);
-  transition: transform var(--dur-base) var(--ease);
+  transform-origin: top left;
 }
 
-.sheet[data-open="true"] .sheet__panel { transform: none; }
+.sheet__content { position: relative; }
 
 .sheet__head {
   display: flex;
@@ -804,7 +824,7 @@ select.field__control {
 
 @media (min-width: 640px) {
   .sheet { align-items: center; padding: 24px; }
-  .sheet__panel { border-radius: var(--radius-xl); padding: 32px; }
+  .sheet__panel { max-width: 560px; height: auto; max-height: 92dvh; border-radius: var(--radius-xl); padding: 32px; }
 }
 
 /* --------------------------------------------------------------------------

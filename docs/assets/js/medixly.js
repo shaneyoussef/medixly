@@ -83,6 +83,51 @@ const TONE_CLASS = {
 
 let sheetEl = null;
 let lastFocus = null;
+let sourceCard = null;
+let sheetAnimations = [];
+let closingSheet = false;
+let backgroundState = [];
+let bodyStyle = null;
+let scrollPosition = 0;
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const sheetMotion = { duration: 620, easing: 'cubic-bezier(.22, 1, .36, 1)' };
+
+function cancelSheetAnimations() {
+  sheetAnimations.forEach(animation => animation.cancel());
+  sheetAnimations = [];
+}
+
+// FLIP the detail surface from the tapped card's actual on-screen rectangle.
+// Re-read on close so returning still works after rotation or a viewport resize.
+function cardTransform(panel) {
+  if (!sourceCard?.isConnected) return null;
+  const card = sourceCard.getBoundingClientRect();
+  const target = panel.getBoundingClientRect();
+  if (!card.width || !card.height || !target.width || !target.height) return null;
+  return `translate(${card.left - target.left}px, ${card.top - target.top}px) scale(${card.width / target.width}, ${card.height / target.height})`;
+}
+
+function lockBackground() {
+  scrollPosition = window.scrollY;
+  const properties = ['position', 'top', 'width', 'overflow'];
+  bodyStyle = properties.map(name => [name, document.body.style.getPropertyValue(name)]);
+  Object.assign(document.body.style, { position: 'fixed', top: `-${scrollPosition}px`, width: '100%', overflow: 'hidden' });
+  backgroundState = [...document.body.children]
+    .filter(el => el !== sheetEl && !['SCRIPT', 'STYLE'].includes(el.tagName))
+    .map(el => [el, el.inert]);
+  backgroundState.forEach(([el]) => { el.inert = true; });
+}
+
+function unlockBackground() {
+  backgroundState.forEach(([el, inert]) => { el.inert = inert; });
+  backgroundState = [];
+  bodyStyle?.forEach(([name, value]) => {
+    if (value) document.body.style.setProperty(name, value);
+    else document.body.style.removeProperty(name);
+  });
+  bodyStyle = null;
+  window.scrollTo({ top: scrollPosition, behavior: 'instant' });
+}
 
 function ensureSheet() {
   if (sheetEl) return sheetEl;
@@ -91,17 +136,32 @@ function ensureSheet() {
   sheetEl.dataset.open = 'false';
   sheetEl.setAttribute('role', 'dialog');
   sheetEl.setAttribute('aria-modal', 'true');
+  sheetEl.setAttribute('aria-labelledby', 'service-detail-title');
+  sheetEl.hidden = true;
   sheetEl.innerHTML = `<div class="sheet__panel"><span class="grain-overlay"></span><div class="sheet__content"></div></div>`;
   sheetEl.addEventListener('click', e => { if (e.target === sheetEl) closeSheet(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+  document.addEventListener('keydown', e => {
+    if (sheetEl.dataset.open !== 'true') return;
+    if (e.key === 'Escape') { e.preventDefault(); closeSheet(); }
+    if (e.key !== 'Tab') return;
+    const controls = [...sheetEl.querySelectorAll('button, a[href]')];
+    const first = controls[0];
+    const last = controls.at(-1);
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
   document.body.appendChild(sheetEl);
   return sheetEl;
 }
 
-export function openSheet(detail) {
+export function openSheet(detail, card = null) {
   const el = ensureSheet();
+  if (el.dataset.open === 'true') return;
   const panel = el.querySelector('.sheet__panel');
-  lastFocus = document.activeElement;
+  lastFocus = card || document.activeElement;
+  sourceCard = card;
+  closingSheet = false;
+  cancelSheetAnimations();
 
   panel.className = 'sheet__panel ' + (TONE_CLASS[detail.tone] || 'card--sand');
   panel.querySelector('.sheet__content').innerHTML = `
@@ -109,7 +169,7 @@ export function openSheet(detail) {
       <span class="overline" style="color:inherit;opacity:.7">${detail.kicker}</span>
       <button class="icon-btn btn--on-color" data-close aria-label="Close">${icon('x', 18)}</button>
     </div>
-    <h2 class="sheet__title">${detail.title}</h2>
+    <h2 class="sheet__title" id="service-detail-title">${detail.title}</h2>
     <p class="sheet__meta">${detail.meta}</p>
     <div class="sheet__rows">
       ${detail.rows.map(([l, v]) => `<div class="sheet__row"><span>${l}</span><span>${v}</span></div>`).join('')}
@@ -120,16 +180,55 @@ export function openSheet(detail) {
     </div>`;
 
   panel.querySelector('[data-close]').addEventListener('click', closeSheet);
+  el.hidden = false;
+  el.dataset.closing = 'false';
   el.dataset.open = 'true';
-  document.body.style.overflow = 'hidden';
-  panel.querySelector('[data-close]').focus();
+  lockBackground();
+  panel.scrollTop = 0;
+  const from = cardTransform(panel);
+  sourceCard?.classList.add('card--expanded');
+  if (!reducedMotion.matches && typeof panel.animate === 'function') {
+    sheetAnimations.push(panel.animate([
+      { transform: from || 'translateY(24px)', borderRadius: '22px' },
+      { transform: 'none', borderRadius: getComputedStyle(panel).borderRadius }
+    ], sheetMotion));
+    sheetAnimations.push(panel.querySelector('.sheet__content').animate([
+      { opacity: 0, transform: 'translateY(12px)' },
+      { opacity: 1, transform: 'none' }
+    ], { duration: 300, delay: 140, fill: 'backwards', easing: sheetMotion.easing }));
+  }
+  panel.querySelector('[data-close]').focus({ preventScroll: true });
 }
 
-export function closeSheet() {
-  if (!sheetEl || sheetEl.dataset.open !== 'true') return;
+export async function closeSheet() {
+  if (!sheetEl || sheetEl.dataset.open !== 'true' || closingSheet) return;
+  closingSheet = true;
+  const panel = sheetEl.querySelector('.sheet__panel');
+  const currentTransform = getComputedStyle(panel).transform;
+  const currentRadius = getComputedStyle(panel).borderRadius;
+  const content = panel.querySelector('.sheet__content');
+  const currentOpacity = getComputedStyle(content).opacity;
+  cancelSheetAnimations();
+  const to = cardTransform(panel);
+  sheetEl.dataset.closing = 'true';
+  if (!reducedMotion.matches && typeof panel.animate === 'function') {
+    const collapse = panel.animate([
+      { transform: currentTransform, borderRadius: currentRadius },
+      { transform: to || 'translateY(24px)', borderRadius: '22px' }
+    ], { ...sheetMotion, duration: 480, fill: 'forwards' });
+    sheetAnimations.push(collapse, content.animate([
+      { opacity: currentOpacity }, { opacity: 0 }
+    ], { duration: 130, fill: 'forwards' }));
+    await collapse.finished.catch(() => {});
+  }
   sheetEl.dataset.open = 'false';
-  document.body.style.overflow = '';
-  if (lastFocus) lastFocus.focus();
+  sheetEl.hidden = true;
+  cancelSheetAnimations();
+  sourceCard?.classList.remove('card--expanded');
+  unlockBackground();
+  if (lastFocus?.isConnected) lastFocus.focus({ preventScroll: true });
+  sourceCard = null;
+  closingSheet = false;
 }
 
 /* --------------------------------------------------------------------------
@@ -138,7 +237,7 @@ export function closeSheet() {
 export function renderCards(host, items) {
   if (!host) return;
   host.innerHTML = items.map((it, i) => `
-    <button class="card ${TONE_CLASS[it.tone] || ''}" data-i="${i}">
+    <button type="button" class="card ${TONE_CLASS[it.tone] || ''}" style="--card-index:${i}" data-i="${i}"${it.detail ? ' aria-haspopup="dialog"' : ''}>
       <span class="grain-overlay"></span>
       ${it.icon ? `<span class="card__icon">${icon(it.icon, 24)}</span>` : ''}
       <span class="card__title">${it.title}</span>
@@ -148,7 +247,7 @@ export function renderCards(host, items) {
   host.querySelectorAll('.card').forEach(btn => {
     btn.addEventListener('click', () => {
       const item = items[Number(btn.dataset.i)];
-      if (item.detail) openSheet({ tone: item.tone, ...item.detail });
+      if (item.detail) openSheet({ tone: item.tone, ...item.detail }, btn);
       else if (item.href) window.location.href = item.href;
     });
   });
