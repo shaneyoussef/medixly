@@ -632,8 +632,9 @@ a { color: var(--ink-1); text-decoration: none; }
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: var(--line-2) transparent;
-  padding: 4px 4px 16px;
-  margin-inline: -4px;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-anchor: none;
   scroll-padding-block: 16px;
 }
 
@@ -652,8 +653,8 @@ a { color: var(--ink-1); text-decoration: none; }
   top: calc(var(--card-index, 0) * 12px);
   z-index: var(--card-index, 0);
   flex: none;
-  min-height: 180px;
-  margin-top: -60px;
+  min-height: 250px;
+  margin-top: -164px;
   box-shadow: 0 -8px 20px -10px rgba(28, 29, 27, .28);
 }
 
@@ -663,10 +664,41 @@ a { color: var(--ink-1); text-decoration: none; }
 /* A focused card must remain readable above the overlapped deck. */
 .stack--wallet .card:focus-visible { z-index: 20; }
 
+/* The native scroll track drives a stationary stage. Card transforms, rather
+   than page movement or sticky margin heuristics, create the wallet motion. */
+.stack--wallet[data-motion="ready"] {
+  display: block;
+  position: relative;
+  padding: 0;
+}
+
+.wallet-stage {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.stack--wallet .wallet-stage .card {
+  position: absolute;
+  inset: 0 0 auto;
+  margin: 0;
+  min-height: 0;
+  height: var(--wallet-card-height);
+  padding: 16px 52px 20px 18px;
+  transform: translate3d(0, var(--wallet-y), 0) scale(var(--wallet-scale, 1));
+  transform-origin: center top;
+  transition: box-shadow var(--dur-base) var(--ease);
+  will-change: transform;
+}
+
+.wallet-stage .card__title { font-size: clamp(1rem, 3.8vw, 1.35rem); }
+.wallet-stage .card__meta { font-size: .875rem; }
+
 @media (min-width: 1024px) {
   .home-wallet .app__main { padding-bottom: 0; }
   .wallet-head { padding-top: 32px; padding-bottom: 28px; }
-  .wallet-scroll { padding-bottom: 24px; }
 }
 
 @media (max-height: 500px) {

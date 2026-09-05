@@ -234,6 +234,64 @@ export async function closeSheet() {
 /* --------------------------------------------------------------------------
    Card grids — build from data so markup stays short and consistent
    -------------------------------------------------------------------------- */
+function wireWallet(host) {
+  const viewport = host.closest('.wallet-scroll');
+  if (!viewport) return;
+  const cards = [...host.querySelectorAll('.card')];
+  const stage = document.createElement('div');
+  stage.className = 'wallet-stage';
+  stage.append(...cards);
+  host.appendChild(stage);
+  host.dataset.motion = 'ready';
+  let stride = 86;
+  let peek = 12;
+  let range = 0;
+  let frame = 0;
+
+  function draw() {
+    frame = 0;
+    const scroll = Math.max(0, Math.min(range, viewport.scrollTop));
+    cards.forEach((card, index) => {
+      const natural = index * stride - scroll;
+      const tucked = index * peek;
+      const y = Math.max(tucked, natural);
+      const depth = Math.max(0, (tucked - natural) / stride);
+      card.style.setProperty('--wallet-y', `${y}px`);
+      card.style.setProperty('--wallet-scale', reducedMotion.matches ? '1' : String(1 - Math.min(.06, depth * .012)));
+    });
+  }
+
+  function measure() {
+    const progress = range ? viewport.scrollTop / range : 0;
+    const height = viewport.clientHeight;
+    if (!height) return;
+    const cardHeight = Math.max(160, Math.min(300, viewport.clientWidth * .68, height * .7));
+    // Leave a readable title strip on every card before it tucks into the deck.
+    const titleHeight = Math.max(...cards.map(card => card.querySelector('.card__title').offsetHeight));
+    stride = Math.max(78, titleHeight + 34);
+    peek = Math.max(0, Math.min(12, (height - cardHeight - 16) / Math.max(1, cards.length - 1)));
+    range = Math.max(0, (cards.length - 1) * (stride - peek));
+    stage.style.height = `${height}px`;
+    host.style.height = `${height + range}px`;
+    host.style.setProperty('--wallet-card-height', `${cardHeight}px`);
+    viewport.scrollTop = Math.min(range, progress * range);
+    draw();
+  }
+
+  viewport.addEventListener('scroll', () => {
+    if (!frame) frame = requestAnimationFrame(draw);
+  }, { passive: true });
+  cards.forEach((card, index) => card.addEventListener('focus', () => {
+    if (!card.matches(':focus-visible') || sheetEl?.dataset.open === 'true') return;
+    viewport.scrollTo({ top: index * (stride - peek), behavior: 'instant' });
+    draw();
+  }));
+  new ResizeObserver(measure).observe(viewport);
+  reducedMotion.addEventListener('change', draw);
+  document.fonts.ready.then(measure);
+  measure();
+}
+
 export function renderCards(host, items) {
   if (!host) return;
   host.innerHTML = items.map((it, i) => `
@@ -251,6 +309,7 @@ export function renderCards(host, items) {
       else if (item.href) window.location.href = item.href;
     });
   });
+  if (host.classList.contains('stack--wallet')) wireWallet(host);
 }
 
 /* --------------------------------------------------------------------------
